@@ -22,8 +22,11 @@ class RubberBottomSheet extends StatefulWidget {
       this.dragFriction = 0.52,
       this.onDragStart,
       this.onDragEnd,
-      this.onTap})
+      this.onTap,
+      this.enableDrag = true,
+      })
       : assert(animationController != null),
+        assert(enableDrag != null),
         super(key: key);
 
   final ScrollController scrollController;
@@ -32,6 +35,7 @@ class RubberBottomSheet extends StatefulWidget {
   final Widget menuLayer;
   final double dragFriction;
   final Function onTap;
+  final bool enableDrag;
 
   /// Called when the user stops scrolling, if this function returns a false the bottomsheet
   /// won't complete the next onDragEnd instructions
@@ -139,7 +143,7 @@ class RubberBottomSheetState extends State<RubberBottomSheet>
     } else {
       layout = _buildAnimatedBottomsheetWidget(context, child);
     }
-    return GestureDetector(
+    return widget.enableDrag ? GestureDetector(
       onTap: widget.onTap,
       onVerticalDragDown: _onVerticalDragDown,
       onVerticalDragUpdate: _onVerticalDragUpdate,
@@ -147,7 +151,7 @@ class RubberBottomSheetState extends State<RubberBottomSheet>
       onVerticalDragCancel: _handleDragCancel,
       onVerticalDragStart: _handleDragStart,
       child: layout,
-    );
+    ) : layout;
   }
 
   Widget _buildAnimatedBottomsheetWidget(BuildContext context, Widget child) {
@@ -200,6 +204,7 @@ class RubberBottomSheetState extends State<RubberBottomSheet>
   ScrollHoldController _hold;
 
   void _onVerticalDragDown(DragDownDetails details) {
+    assert(widget.enableDrag);
     if (_enabled) {
       if (_hasHeader) {
         if (_draggingPeak(details.globalPosition)) {
@@ -218,6 +223,7 @@ class RubberBottomSheetState extends State<RubberBottomSheet>
   Offset _lastPosition;
 
   void _onVerticalDragUpdate(DragUpdateDetails details) {
+    assert(widget.enableDrag);
     if (_enabled) {
       _lastPosition = details.globalPosition;
       if (_scrolling && _shouldScroll) {
@@ -279,6 +285,7 @@ class RubberBottomSheetState extends State<RubberBottomSheet>
   }
 
   void _handleDragStart(DragStartDetails details) {
+    assert(widget.enableDrag);
     if (_enabled) {
       if (widget.onDragStart != null) widget.onDragStart();
       if (_shouldScroll) {
@@ -294,6 +301,7 @@ class RubberBottomSheetState extends State<RubberBottomSheet>
   }
 
   void _onVerticalDragEnd(DragEndDetails details) {
+    assert(widget.enableDrag);
     if (_enabled) {
       // If onDragEnd returns a false value the method interrupts
       if (widget.onDragEnd != null) {
@@ -387,3 +395,4 @@ class RubberBottomSheetState extends State<RubberBottomSheet>
     return (globalPosition.dy < top);
   }
 }
+
